@@ -1,3 +1,4 @@
+# Note: Ported from https://github.com/martijnbentum/DESRC/tree/master
 import locations
 import mne
 import numpy as np
