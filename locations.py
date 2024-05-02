@@ -3,9 +3,9 @@ import glob
 import os
 
 #change this to the directory of the corpus
-corpus_dir= '/Volumes/Corpus_Studies/Corpora/Nijmegen_EEG_Corpus/'
+corpus_dir= '/mnt/LUV_LAB_NAS/Corpus_Studies/Corpora/Nijmegen_EEG_Corpus/'
 #change this to the directory of the CGN audio files:
-cgn_audio= '/Volumes/Grants_Flas/CGN/audio/'
+cgn_audio= "/mnt/LUV_LAB_NAS/Corpus_Studies/Corpora/Dutch/Nijmegen_Sponteanous_Dutch/Component_o/martijn/"
 #change this to the directory of the IFADV audio files:
 #ifadv_audio = '/vol/tensusers/mbentum/IFADV/WAV_16KHZ/'
 
