@@ -1,4 +1,5 @@
 import librosa
+import locations
 
 # Helper function to find an ordered subarray. Useful for word/phrase search.
 # Note: Will only find the first complete result for now. Returns bool for match and the start and end indices of the subarray
