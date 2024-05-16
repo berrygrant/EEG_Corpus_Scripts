@@ -1,6 +1,7 @@
 import mne
 import mne_connectivity
-
+import numpy as np
+import seaborn as sns
 
 # This will analyze theta band power spectra for eeg channels and corresponding audio
 # Assumes that you have already collected data for a given number of phrases and utterances using phrase_search.py
@@ -35,11 +36,6 @@ def tfa_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
         all_band_data.update({utt:utt_bands})
     return all_band_data
 
-def plot_phrase_band_data(phrase, band_data):
-    phrase_bands = band_data[phrase]
-    for participant in range(len(phrase_bands)):
-        band, picks =phrase_bands[participant]
-        band.plot(picks=picks,show=True)
 
 # This will compute the phase-locking value between the audio and each eeg channel for each participant across a set of phrases generated from phrase_search.py
 def plv_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
@@ -50,13 +46,14 @@ def plv_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
         num_participants = len(phrase_data[utt])
         for participant in range(num_participants):
             p_data = []
+            ch_vals=[]
+            just_vals=[]
             participant_data = phrase_data[utt][participant][0]
             eeg_data = participant_data[0]
             bad_channels = participant_data[2]
             all_channels = ['Fz', 'F3', 'F7', 'FC5', 'FC1', 'C3', 'T7', 'CP5', 'CP1', 'Pz', 'P3', 'P7', 'O1', 'O2', 'P4', 'P8', 'CP6', 'CP2', 'Cz', 'C4', 'T8', 'FC6', 'FC2', 'F4', 'F8']
             channels = [str(x) for x in all_channels if str(x) not in bad_channels]
             raw_audio=[participant_data[1]] # must be specified as an array
-            ch_vals=[]
             for channel in channels:
                 ch_index = [i for i in range(len(channels)) if channels[i]==channel]
                 eeg_info=mne.create_info(ch_names=[str(channel)],sfreq=1000)
@@ -73,9 +70,26 @@ def plv_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
                 fake_events=mne.make_fixed_length_events(combined,start=0, duration=shortest)
                 fake_epochs=mne.Epochs(combined,fake_events,tmin=0,tmax=shortest,reject_by_annotation=False,baseline=(0,0))
                 plv=mne_connectivity.spectral_connectivity_time(fake_epochs,freqs=[band[1],band[2]],fmin=band[1],fmax=band[2], method='plv')
-                ch_vals.append([channel,plv])
-            p_data.append(ch_vals)
-        utt_bands.append(p_data)
+                avg=np.mean(plv.get_data()[0][2][:])
+                just_vals.append(avg)
+                ch_vals.append([channel,avg])
+            avg_allch = np.mean(just_vals)
+            p_data.append([avg_allch,ch_vals])
+            utt_bands.append(p_data)
         all_band_data.update({utt:utt_bands})
-    return all_band_data
-    
+    return all_band_data 
+
+def plot_plvs_for_utts(band_data):
+    utts=[key for key in band_data.keys()]
+    to_plot=[]
+    x = 0
+    for utt in utts:
+        utt_vals = [band_data[utt][participant][0][0] for participant in range(len(band_data[utt]))]
+        to_plot.append([x,utt_vals])
+        x+=1
+    ordered_pairs = []
+    for x in range(len(to_plot)):
+        for y in range(len(to_plot[x][1])):
+            ordered_pairs.append([x,to_plot[x][1][y]])
+    print(sns.catplot(x=x_s,y=y_s, kind="swarm"))
+    return ordered_pairs
