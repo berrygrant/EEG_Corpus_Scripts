@@ -49,5 +49,49 @@ def find_all_phrases(phrases,participants):
 		phrase_data.update({phrase:participant_data})
 	return phrase_data
 
+def get_phrase_data_syll(phrase,participant,syll_file,my_sep='\t'):
+    phrase_split = phrase.lower().split(' ')
+    blocks = len(participant.blocks)
+    syll_info = pd.read_table(syll_file,sep=my_sep)
+    syll_data = syll_info[syll_info['Utt']==phrase]
+    for bi in range(0,blocks):
+        block = participant.blocks[bi]
+        block_name = block.name
+        block_words=block.words
+        word_list=[x.word.lower() for x in block_words]
+        tf,s,e = phrase_search.find_subarray(word_list,phrase_split)
+        if tf == True:
+            bad_electrodes = block.rejected_channels
+            block_eeg = block.data
+            wav=block.wav_filename
+            eeg_s = block_words[s].st_sample-block.st_sample
+            eeg_e = block_words[e].et_sample-block.st_sample + 1 # for slicing [:]
+            pointer = eeg_s
+            syll_res=[]
+            try:
+                for syll in syll_data['Syll']:
+                    syll_s = int(str(syll_data[syll_data["Syll"]==syll]['Start'].iloc[0]).replace(":",""))
+                    syll_e = int(str(syll_data[syll_data["Syll"]==syll]['End'].iloc[0]).replace(":",""))
+                    syll_dur =  syll_e - syll_s
+                    syll_sound = librosa.load(locations.cgn_audio+str(wav), sr=1000,offset=syll_s,duration=syll_dur)
+                    syll_eeg=block_eeg[:,pointer : pointer + syll_dur]
+                    syll_res.append([syll_eeg])
+                    pointer += syll_dur
+                return syll_res, syll_sound, bad_electrodes, [wav,block,participant]
+            except:
+                print("Error extracting syllable information!\n\tParticipant: {}\n\tPhrase: {}".format(participant.name,phrase))
+    return None
+
+def find_all_phrases_syll(phrases,participants,syll_file):
+	phrase_data={}
+	for participant in range(len(participants)):
+		for phrase in phrases:
+			participant_data=[]
+			print('{}--{}'.format(participant,phrase))
+			data=get_phrase_data_syll(phrase,participants[participant],syll_file)
+			if data!=None:
+				participant_data.append([data,participant])
+		phrase_data.update({phrase:participant_data})
+	return phrase_data
 
 # To add: PhraseData class with attributes
