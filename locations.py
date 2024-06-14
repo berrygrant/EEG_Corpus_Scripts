@@ -4,7 +4,7 @@ import os
 #change this to the directory of the corpus
 corpus_dir= '/vol/tensusers/mbentum/BAK/'
 #change this to the directory of the CGN audio files:
-cgn_audio= '/vol/bigdata/corpora2/CGN2/data/audio/wav/'
+cgn_audio= '/vol/bigdata/corpora2/CGN2/data/audio/wav/comp-o/nl/'
 #change this to the directory of the IFADV audio files:
 ifadv_audio = '/vol/tensusers/mbentum/IFADV/WAV_16KHZ/'
 
