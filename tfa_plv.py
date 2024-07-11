@@ -24,9 +24,9 @@ def tfa_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
             audio_info=mne.create_info(ch_names=['Speech'],sfreq=1000)
             mne_eeg = mne.io.RawArray(eeg_data,info=eeg_info)
             mne_audio = mne.io.RawArray(raw_audio,info=audio_info)
-            shortest=min(mne_eeg.__len__()/1000,mne_audio.__len__()/1000)-0.001
-            eeg_cropped=mne_eeg.crop(tmax=shortest)
-            audio_cropped=mne_audio.crop(tmax=shortest)
+            shortest=round(min(mne_eeg.__len__()/1000,mne_audio.__len__()/1000)-0.001,3)
+            eeg_cropped=mne_eeg.crop(tmax=round(shortest,3))
+            audio_cropped=mne_audio.crop(tmax=round(shortest,3))
             combined=eeg_cropped.add_channels([audio_cropped],force_update_info=True)
             ch_w_speech=channels
             ch_w_speech.append('Speech')
@@ -61,8 +61,8 @@ def plv_audio_eeg_phrases(phrase_data,band=['Theta',4,8]):
                 mne_eeg = mne.io.RawArray(eeg_data[ch_index],info=eeg_info)
                 mne_audio = mne.io.RawArray(raw_audio,info=audio_info)
                 shortest=min(mne_eeg.__len__()/1000,mne_audio.__len__()/1000)-0.001
-                eeg_cropped=mne_eeg.crop(tmax=shortest)
-                audio_cropped=mne_audio.crop(tmax=shortest)
+                eeg_cropped=mne_eeg.crop(tmax=round(shortest,3))
+                audio_cropped=mne_audio.crop(tmax=round(shortest,3))
                 combined=eeg_cropped.add_channels([audio_cropped],force_update_info=True)
                 ch_w_speech=[str(channel)]
                 ch_w_speech.append('Speech')
