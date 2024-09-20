@@ -1,5 +1,6 @@
 import librosa
 import locations
+import pandas as pd
 
 # Helper function to find an ordered subarray. Useful for word/phrase search.
 # Note: Will only find the first complete result for now. Returns bool for match and the start and end indices of the subarray
@@ -34,8 +35,8 @@ def get_participant_phrase_data(phrase,participant):
 			eeg_s = block_words[s].st_sample-block.st_sample
 			eeg_e = block_words[e].et_sample-block.st_sample + 1 # for slicing [:]
 			phrase_eeg=block_eeg[:,eeg_s:eeg_e]
-			return phrase_eeg, sound_sample, bad_electrodes, [wav,block,participant],[phrase_st,phrase_et],[eeg_s,eeg_e] 
-	return None
+            return phrase_eeg, sound_sample, bad_electrodes, [wav,block,participant],[phrase_st,phrase_et],[eeg_s,eeg_e]
+        return None
 
 # General function to search for a set of phrases for a set of participants. Again, this function assumes you have participant data loaded
 def find_all_phrases(phrases,participants):
@@ -59,7 +60,7 @@ def get_phrase_data_syll(phrase,participant,syll_file,my_sep='\t'):
         block_name = block.name
         block_words=block.words
         word_list=[x.word.lower() for x in block_words]
-        tf,s,e = phrase_search.find_subarray(word_list,phrase_split)
+        tf,s,e = find_subarray(word_list,phrase_split)
         if tf == True:
             bad_electrodes = block.rejected_channels
             block_eeg = block.data
